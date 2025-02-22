@@ -1,0 +1,1 @@
+export const categories = ["mountains", "wildlife", "heritage", "lakes", "adventure"];
