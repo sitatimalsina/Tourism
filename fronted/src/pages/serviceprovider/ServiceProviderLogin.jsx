@@ -17,6 +17,13 @@ const ServiceProviderLogin = () => {
 
     const success = await login(inputs);
     if (success) {
+      // Assuming `login` returns the token
+      const token = success.token; // Modify this if your `login` hook works differently
+
+      // Store the token in localStorage
+      localStorage.setItem("token", token);
+
+      // Navigate to the dashboard
       navigate("/admin-dashboard"); 
     }
   };
@@ -62,8 +69,6 @@ const ServiceProviderLogin = () => {
             Login
           </button>
         </form>
-
-      
       </div>
     </div>
   );

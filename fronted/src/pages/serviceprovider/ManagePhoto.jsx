@@ -8,6 +8,7 @@ const ManagePhoto = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [title, setTitle] = useState("");
   const [deletingId, setDeletingId] = useState(null);
+  const [isUploading, setIsUploading] = useState(false); // New state to track upload progress
 
   // Fetch Photos from API
   useEffect(() => {
@@ -23,7 +24,25 @@ const ManagePhoto = () => {
   }, []);
 
   // Handle File Selection
-  const handleFileChange = (e) => setSelectedFile(e.target.files[0]);
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    setSelectedFile(file);
+    console.log("File selected:", file); // Debugging
+  };
+
+  // Helper function to get token from localStorage
+  const getAuthHeaders = () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      console.error("No authentication token found.");
+      alert("Session expired! Please log in again.");
+      return null;
+    }
+    return {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "multipart/form-data",
+    };
+  };
 
   // Upload Image
   const handleUpload = async () => {
@@ -31,83 +50,80 @@ const ManagePhoto = () => {
       alert("Please select an image and enter a title");
       return;
     }
+
+    const headers = getAuthHeaders();
+    if (!headers) return;
+
     const formData = new FormData();
     formData.append("image", selectedFile);
     formData.append("title", title);
+
+    setIsUploading(true); // Set isUploading to true to disable button
+
     try {
-      const res = await axios.post(
-        "http://localhost:5000/api/photos/upload",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
+      console.log("Uploading..."); // Debugging
+      const res = await axios.post("http://localhost:5000/api/photos/upload", formData, {
+        headers: headers,
+      });
+
       if (res.data && res.data.photo) {
+        console.log("Upload success:", res.data.photo); // Debugging
         setPhotos([...photos, res.data.photo]); // Update UI
+        setTitle("");
+        setSelectedFile(null);
+        alert("Upload successful!");
       } else {
         throw new Error("Invalid response from server");
       }
-      setTitle("");
-      setSelectedFile(null);
-      alert("Upload successful!");
     } catch (error) {
       console.error("Upload Error:", error.response?.data || error.message);
       alert("Upload failed. Check console for details.");
+    } finally {
+      setIsUploading(false); // Reset isUploading to false after upload
     }
   };
 
   // Delete Image
   const handleDelete = async (id) => {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this photo? This action cannot be undone."
-    );
-
+    const confirmDelete = window.confirm("Are you sure you want to delete this photo?");
     if (!confirmDelete) return;
 
-    setDeletingId(id); // Set the ID of the photo being deleted
+    setDeletingId(id); // Set deleting state
+
+    const headers = getAuthHeaders();
+    if (!headers) return;
 
     try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        throw new Error("No authentication token found");
-      }
-
-      // Send DELETE request to the backend
       const response = await axios.delete(`http://localhost:5000/api/photos/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: headers,
       });
 
       if (response.status === 200) {
-        // Remove the deleted photo from the UI
         setPhotos((prevPhotos) => prevPhotos.filter((photo) => photo._id !== id));
         alert("Photo deleted successfully!");
       } else {
         throw new Error(`Unexpected response status: ${response.status}`);
       }
     } catch (error) {
-      console.error("Delete error:", {
-        message: error.message,
-        response: error.response?.data,
-        status: error.response?.status,
-      });
+      console.error("Delete error:", error.response?.data || error.message);
+      console.log("hello")
       alert(`Failed to delete photo: ${error.message}. Check console for details.`);
     } finally {
-      setDeletingId(null); // Reset the deleting state
+      setDeletingId(null); // Reset deleting state
     }
   };
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <>
       {/* Header */}
       <AdminHeader />
+   
+    <div className="flex flex-row    min-h-screen">
 
-      {/* Main Content */}
-      <div className="flex flex-1">
-        {/* Sidebar */}
-        <Sidebar />
+      <div>
+      <Sidebar />
+      </div>
+      
 
         {/* Content Area */}
         <div className="flex-1 p-6 bg-gray-100">
@@ -129,9 +145,10 @@ const ManagePhoto = () => {
             />
             <button
               onClick={handleUpload}
-              className="bg-teal-600 text-white p-2 rounded-md hover:bg-teal-700 transition ml-2"
+              disabled={isUploading} // Disable the button when uploading
+              className={`bg-teal-600 text-white p-2 rounded-md hover:bg-teal-700 transition ml-2 ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
-              Upload
+              {isUploading ? 'Uploading...' : 'Upload'} {/* Change text when uploading */}
             </button>
           </div>
 
@@ -150,18 +167,21 @@ const ManagePhoto = () => {
                 {photos.map((photo) => (
                   <tr key={photo._id}>
                     <td className="border p-2">
-                      <img src={photo.url} alt={photo.title} className="w-20 h-20 object-cover" />
+                      <img
+                        src={photo.url}
+                        alt={photo.title}
+                        className="w-20 h-20 object-cover"
+                      />
                     </td>
                     <td className="border p-2">{photo.title}</td>
                     <td className="border p-2">
                       <button
                         onClick={() => handleDelete(photo._id)}
                         disabled={deletingId === photo._id}
-                        className={`bg-red-500 text-white p-2 rounded-md ${
-                          deletingId === photo._id
-                            ? "opacity-50 cursor-not-allowed"
-                            : "hover:bg-red-700 transition"
-                        }`}
+                        className={`bg-red-500 text-white p-2 rounded-md ${deletingId === photo._id
+                          ? "opacity-50 cursor-not-allowed"
+                          : "hover:bg-red-700 transition"
+                          }`}
                       >
                         {deletingId === photo._id ? "Deleting..." : "Delete"}
                       </button>
@@ -173,7 +193,7 @@ const ManagePhoto = () => {
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

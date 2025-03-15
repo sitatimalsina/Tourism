@@ -74,7 +74,10 @@ const deletePhoto = async (req, res) => {
   }
 };
 
+
+
 // Export all controller functions
+
 module.exports = {
   uploadPhoto,
   getPhotos,

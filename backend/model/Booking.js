@@ -105,18 +105,7 @@ BookingSchema.methods.updateStatus = async function (newStatus) {
   return this;
 };
 
-/** Static Method: Confirm Payment */
-BookingSchema.statics.confirmPayment = async function (transactionId, paymentDetails) {
-  const booking = await this.findOne({ transactionId });
-  if (!booking) {
-    throw new Error("Booking not found for the given transaction ID");
-  }
-  booking.paymentStatus = "paid";
-  booking.paymentDetails = paymentDetails;
-  booking.transactionId = transactionId;
-  await booking.save();
-  return booking;
-};
+
 
 /** Static Method: Reject Booking */
 BookingSchema.statics.rejectBooking = async function (bookingId) {

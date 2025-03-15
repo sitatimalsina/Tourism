@@ -23,12 +23,13 @@ app.use('/api/', require("./routes/auth.route"));
 app.use('/api/destinations', require("./routes/destination.route"));
 app.use("/api/packages", require("./routes/package.route"));
 app.use("/api/bookings", require("./routes/booking.route"));
-app.use("/api/payments", require("./routes/payment.route"));
-app.use("/api/admin", require("./routes/admin.route")); // Admin routes
+app.use("/api/admin", require("./routes/admin.route"));
 app.use("/api/users", require("./routes/user.route"));
 app.use("/api/contact", require("./routes/contact.route"));
 app.use("/api/booking-history", require("./routes/bookingHistory.route"));
-app.use("/api/photos",require("./routes/photo.route"))
+app.use("/api/photos",require("./routes/photo.route"));
+
+
 
 const port = process.env.PORT || 5000;
 

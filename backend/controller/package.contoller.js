@@ -126,12 +126,15 @@ const getAdminPackage = async (req, res) => {
 
       return res.status(404).json({error: "Invalid request."});
     }
-    const package = await Package.find({createdBy : userId}).populate("destinations", "placeName location");
-    if (!package) {
+    const packageData = await Package.find({createdBy : userId}).populate("destinations", "placeName location");
+
+    if (!packageData) {
+
       return res.status(404).json({error : "no package found"});
     }
 
-    return res.status(200).json(package);
+    return res.status(200).json(packageData);
+
     
 
   } catch (error) {

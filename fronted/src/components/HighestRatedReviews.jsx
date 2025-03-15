@@ -39,7 +39,8 @@ const HighestRatedReviews = () => {
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const res = await fetch("/api/destinations/highest-rated-reviews"); // Correct endpoint
+        const res = await fetch("http://localhost:3000/api/destinations/highest-rated-reviews"); // Correct endpoint
+
         if (!res.ok) throw new Error("Failed to fetch reviews");
         const data = await res.json();
 

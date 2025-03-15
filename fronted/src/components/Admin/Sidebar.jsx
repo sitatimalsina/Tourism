@@ -1,37 +1,88 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+// Import icons from React Icons
+import {
+  FaTachometerAlt, // Dashboard
+  FaUsers,         // Manage Users
+  FaMapMarkerAlt,  // Manage Destinations
+  FaCalendarCheck, // Manage Bookings
+  FaHistory,       // Booking History
+  FaBox,           // Manage Packages
+  FaEnvelope,      // Manage Enquiry
+  FaImages,        // Manage Photos
+} from "react-icons/fa";
 
 const Sidebar = () => {
   const navigate = useNavigate();
-
   return (
     <aside className="w-64 bg-teal-700 text-white h-full p-6">
-      <h2 className="text-2xl font-bold mb-6">Admin Panel</h2>
+      <h2 className="text-2xl font-bold mb-6 flex items-center">
+     Admin Panel
+      </h2>
       <nav className="flex flex-col space-y-4">
-        <button onClick={() => navigate("/admin-dashboard")} className="hover:bg-teal-600 p-2 rounded-lg">
-          Dashboard
+        {/* Dashboard */}
+        <button
+          onClick={() => navigate("/admin-dashboard")}
+          className="hover:bg-teal-600 p-2 rounded-lg flex items-center"
+        >
+          <FaTachometerAlt className="mr-2" /> Dashboard
         </button>
-        <button onClick={() => navigate("/admin/userslist")} className="hover:bg-teal-600 p-2 rounded-lg">
-          Manage Users
+
+        {/* Manage Users */}
+        <button
+          onClick={() => navigate("/admin/userslist")}
+          className="hover:bg-teal-600 p-2 rounded-lg flex items-center"
+        >
+          <FaUsers className="mr-2" /> Manage Users
         </button>
-        <button onClick={() => navigate("/admin/destinations")} className="hover:bg-teal-600 p-2 rounded-lg">
-          Manage Destinations
+
+        {/* Manage Destinations */}
+        <button
+          onClick={() => navigate("/admin/destinations")}
+          className="hover:bg-teal-600 p-2 rounded-lg flex items-center"
+        >
+          <FaMapMarkerAlt className="mr-2" /> Manage Destinations
         </button>
-        <button onClick={() => navigate("/admin/bookings")} className="hover:bg-teal-600 p-2 rounded-lg">
-          Manage Bookings
+
+        {/* Manage Bookings */}
+        <button
+          onClick={() => navigate("/admin/bookings")}
+          className="hover:bg-teal-600 p-2 rounded-lg flex items-center"
+        >
+          <FaCalendarCheck className="mr-2" /> Manage Bookings
         </button>
-        <button onClick={() => navigate("/admin/bookinghistory")} className="hover:bg-teal-600 p-2 rounded-lg">
-          Booking History 
+
+        {/* Booking History */}
+        <button
+          onClick={() => navigate("/admin/bookinghistory")}
+          className="hover:bg-teal-600 p-2 rounded-lg flex items-center"
+        >
+          <FaHistory className="mr-2" /> Booking History
         </button>
-        <button onClick={() => navigate("/admin/package")} className="hover:bg-teal-600 p-2 rounded-lg">
-          Manage Packages
+
+        {/* Manage Packages */}
+        <button
+          onClick={() => navigate("/admin/package")}
+          className="hover:bg-teal-600 p-2 rounded-lg flex items-center"
+        >
+          <FaBox className="mr-2" /> Manage Packages
         </button>
-        <button onClick={() => navigate("/admin/manage-messages")} className="hover:bg-teal-600 p-2 rounded-lg">
-  Manage Enquiry
-</button>
-<button onClick={() => navigate("/admin/manage-photos")} className="hover:bg-teal-600 p-2 rounded-lg">
-  Manage Photos
-</button>
+
+        {/* Manage Enquiry */}
+        <button
+          onClick={() => navigate("/admin/manage-messages")}
+          className="hover:bg-teal-600 p-2 rounded-lg flex items-center"
+        >
+          <FaEnvelope className="mr-2" /> Manage Enquiry
+        </button>
+
+        {/* Manage Photos */}
+        <button
+          onClick={() => navigate("/admin/manage-photos")}
+          className="hover:bg-teal-600 p-2 rounded-lg flex items-center"
+        >
+          <FaImages className="mr-2" /> Manage Photos
+        </button>
       </nav>
     </aside>
   );

@@ -8,13 +8,13 @@ const { uploadPhoto, getPhotos, deletePhoto } = require("../controller/photo.con
 const { protectRoute } = require("../middleware/protectRoute");
 
 // Upload photo
-router.post("/upload", protectRoute, upload.single("image"), uploadPhoto);
+router.post("/upload", upload.single("image"), uploadPhoto);
 
 // Get all photos
 router.get("/", getPhotos);
 
 // Delete photo
-router.delete("/:id", protectRoute, deletePhoto);
+router.delete("/:id", deletePhoto);
 
 
 module.exports = router;
