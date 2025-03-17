@@ -48,7 +48,6 @@ const getAllDestinations = async (req, res) => {
   }
 };
 
-// Get admin-specific destinations (e.g., created by the logged-in admin)
 const getAdminDestinations = async (req, res) => {
   try {
     const userId = req.user._id; // Assuming `req.user` contains the logged-in user's details
@@ -169,8 +168,12 @@ const deleteDestination = async (req, res) => {
 
 // Get highest-rated reviews across all destinations
 const getHighestRatedReviews = async (req, res) => {
+  console.log("Fetching highest rated reviews"); // Debugging log
+
   try {
-    const topReviews = await Destination.aggregate([
+    const topReviews = await Destination.aggregate([ 
+      console.log("Aggregating top reviews..."), // Debugging log
+
       {
         $match: { "reviews.0": { $exists: true } }, // Only include destinations with reviews
       },

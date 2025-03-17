@@ -14,8 +14,10 @@ const useSignup = () => {
       const res = await fetch("/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ name, email, password, role }),
       });
+
 
       const text = await res.text();
       const data = text ? JSON.parse(text) : {};

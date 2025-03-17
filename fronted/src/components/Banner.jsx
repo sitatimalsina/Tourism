@@ -67,7 +67,7 @@ const Banner = () => {
             alt="Nepal Scenery"
             className="w-full h-full object-cover absolute inset-0"
 
-            initial={{ opacity: 0, scale: 1.05 }}
+            initial={{ opacity: 0, scale: 1.00 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 1.00 }}
             transition={{ duration: 0.8 }}

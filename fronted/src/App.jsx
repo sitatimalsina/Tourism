@@ -1,8 +1,11 @@
 import React from 'react';
+
 import { Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import LandingPage from './pages/LandingPage';
 import UserLogin from './pages/traveler/UserLogin';
+import UserProfile from './pages/traveler/UserProfile';
+// import ChangePassword from './pages/traveler/ChangePassword';
 import ServiceProviderLogin from './pages/serviceprovider/ServiceProviderLogin';
 import UserSignup from './pages/traveler/UserSignup';
 import UserPreferences from './pages/traveler/UserPreference';
@@ -28,6 +31,7 @@ import BookingHistory from './pages/serviceprovider/BookingHistory';
 import ManageMessages from './pages/serviceprovider/ManageMessages';
 import TermsOfUse from './pages/TermsOfUse';
 import ManagePhoto from './pages/serviceprovider/ManagePhoto';
+import ForgotPassword from './pages/traveler/ForgotPassword';
 
 
 function App() {
@@ -39,6 +43,7 @@ function App() {
         <Route path="/" element={<ExploreNepal />} />
         <Route path="/user-login" element={<UserLogin />} />
         <Route path="/user-signup" element={<UserSignup />} />
+        <Route path="/user-profile" element={<UserProfile />} />
         <Route path="/service-provider-login" element={<ServiceProviderLogin />} />
         <Route path="/preferences" element={<UserPreferences />} />
         <Route path="/mode" element={<LandingPage />} />
@@ -63,7 +68,7 @@ function App() {
         <Route path="/admin/manage-messages" element={<ManageMessages />} />
         <Route path="/terms-of-use" element={<TermsOfUse />} />
         <Route path="/admin/manage-photos" element={<ManagePhoto />} />
-      
+        <Route path="/forgot-password" element={<ForgotPassword />} />
       </Routes>
       <Toaster />
     </div>

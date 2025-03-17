@@ -14,12 +14,13 @@ const useLogin = () => {
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ email, password }),
       });
 
-      const text = await res.text();
-      const data = text?JSON.parse(text) : {};
-      if (data.error) {
+      const data = await res.json(); // Parsing directly as JSON for better handling
+
+      if (res.status !== 200) {
         throw new Error(data.error || "Login failed");
       }
 
@@ -27,10 +28,11 @@ const useLogin = () => {
       setAuthUser(data);
 
       toast.success("Login successful!");
-      return true; 
+      navigate("/dashboard"); // Redirect after successful login (optional)
+      return true;
     } catch (error) {
-      toast.error(error.message);
-      return false; 
+      toast.error(error.message || "An unexpected error occurred.");
+      return false;
     }
   };
 
@@ -42,6 +44,13 @@ export default useLogin;
 function handleInputErrors({ email, password }) {
   if (!email || !password) {
     toast.error("Please fill in all fields");
+    return false;
+  }
+
+  // Additional validation for email format could go here (optional)
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    toast.error("Please enter a valid email address");
     return false;
   }
 

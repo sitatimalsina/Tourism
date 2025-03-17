@@ -11,7 +11,7 @@ const ReviewSchema = new mongoose.Schema({
     required: true, 
     min: 1, 
     max: 5, 
-    index: true // Add an index for faster sorting
+    index: true 
   },
   comment: { 
     type: String, 

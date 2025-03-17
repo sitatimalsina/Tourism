@@ -15,7 +15,9 @@ const AdminBookings = () => {
     fetchNotifications();
   }, []);
 
-  const fetchBookings = async () => {
+const fetchBookings = async () => {
+  console.log("Fetching bookings..."); // Debugging line to check if the function is called
+
     try {
       const res = await fetch("/api/bookings/admin", { credentials: "include" });
       const data = await res.json();
@@ -26,9 +28,12 @@ const AdminBookings = () => {
     }
   };
 
-  const fetchNotifications = async () => {
+const fetchNotifications = async () => {
+  
+
     try {
-      const res = await fetch("/api/bookings/admin/notifications", { credentials: "include" });
+      const res = await fetch("/api/bookings/admin/notifications", { credentials: "include" }); // Ensure this endpoint is correct
+
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to fetch notifications");
       setNotifications(data);
@@ -134,7 +139,7 @@ const handleRejectBooking = async (bookingId) => {
                   </p>
 
                   {/* Action Buttons */}
-                  {booking.status === "pending" && (
+                  {booking.status === "Pending" && (
                     <>
                       <button
                         onClick={() => handleConfirmBooking(booking._id)}

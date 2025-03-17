@@ -1,37 +1,22 @@
+
 const express = require("express");
 const router = express.Router();
-const { 
-  createBooking, 
-  getBookings, 
-  getBookingById, 
-  confirmBooking,
-  rejectBooking,
-  cancelBooking,
-  deleteBooking,
-} = require("../controller/booking.controller");
-
+const { createBooking, getUserBookings, getAdminNotifications, confirmBooking, getAdminBookings, cancelBooking, rejectBooking } = require("../controller/booking.controller");
 const { protectRoute } = require("../middleware/protectRoute");
 
-// Create a new booking
-router.post("/", protectRoute, createBooking);
+router.post("/create", protectRoute, createBooking);
 
-// Get all bookings
-router.get("/", protectRoute, getBookings);
+router.get("/", protectRoute, getUserBookings);
 
-// Get a single booking by ID
-router.get("/:id", protectRoute, getBookingById);
+router.put("/confirm/:bookingId", protectRoute, confirmBooking);
 
-// Confirm booking
-router.put("/:id/confirm", protectRoute, confirmBooking);
+router.get("/admin",protectRoute, getAdminBookings);
 
-// Reject booking
-router.put("/:id/reject", protectRoute, rejectBooking);
+router.get("/admin/notifications", protectRoute, getAdminNotifications);
 
-// Cancel booking
-router.put("/:id/cancel", protectRoute, cancelBooking);
+router.put("/cancel/:bookingId", protectRoute, cancelBooking);
 
+router.put("/reject/:bookingId", protectRoute, rejectBooking);
 
-// Delete a booking
-router.delete("/:id", protectRoute, deleteBooking);
 
 module.exports = router;

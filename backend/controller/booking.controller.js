@@ -1,95 +1,146 @@
 const Booking = require("../model/Booking");
+const Package = require("../model/Package");
+const crypto = require("crypto");
+const sendEmail = require('../utils/email'); // Import the email utility
 
+// Function to send confirmation email
+const sendConfirmationEmail = async (booking) => {
+  const message = `Dear ${booking.userName}, your booking has been confirmed for the date ${booking.bookingDate}. Please visit the office for further details.`;
+  await sendEmail(booking.userEmail, "Booking Confirmed", message);
+};
 
+// Function to send rejection email
+const sendRejectionEmail = async (booking) => {
+  const message = `Dear ${booking.userName}, your booking for ${booking.package?.packageName || "the package"} has been rejected as the package is currently unavailable.`;
+  await sendEmail(booking.userEmail, "Booking Rejected", message);
+};
 
-// Create a new booking
 const createBooking = async (req, res) => {
   try {
-    const { packageId, userId, bookingDate, numberOfPeople } = req.body;
-    
-    const booking = await Booking.create({
+    const { packageId, numberOfPeople, bookingDate, userName, userEmail, userPhone, userAddress } = req.body;
+
+    if (!req.user) {
+      return res.status(401).json({ error: "Unauthorized. Please login." });
+    }
+
+    const packageData = await Package.findById(packageId);
+    if (!packageData) {
+      return res.status(404).json({ error: "Package not found" });
+    }
+
+    const totalAmount = packageData.price * numberOfPeople;
+    const transactionId = crypto.randomBytes(8).toString("hex");
+
+    const newBooking = new Booking({
+      user: req.user._id,
       package: packageId,
-      user: userId,
-      bookingDate,
       numberOfPeople,
-      status: "pending"
+      bookingDate,
+      userName,
+      userEmail,
+      userPhone,
+      userAddress,
+      amountPaid: totalAmount,
+      paymentStatus: "pending",
+      transactionId,
     });
 
-    res.status(201).json(booking);
+    await newBooking.save();
+
+    res.status(201).json({ success: "Booking created!", booking: newBooking });
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    console.error("Error creating booking:", error.message);
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 
-// Get all bookings
-const getBookings = async (req, res) => {
+const getUserBookings = async (req, res) => {
   try {
-    const bookings = await Booking.find().populate("package user");
-    res.json(bookings);
+    const bookings = await Booking.find({ user: req.user._id })
+      .populate("package", "packageName price duration");
+
+    res.status(200).json(bookings);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("Error fetching bookings:", error.message);
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 
-// Get a single booking by ID
-const getBookingById = async (req, res) => {
+const getAdminBookings = async (req, res) => {
   try {
-    const booking = await Booking.findById(req.params.id).populate("package user");
-    if (booking) {
-      res.json(booking);
-    } else {
-      res.status(404).json({ message: "Booking not found" });
+    if (!req.user || req.user.role !== "admin") {
+      return res.status(403).json({ error: "Access denied. Admins only" });
     }
+
+    const bookings = await Booking.find()
+      .populate("user", "name email")
+      .populate({
+        path: "package",
+        match: { createdBy: req.user._id },
+        select: "packageName price",
+      });
+
+    const filteredBookings = bookings.filter((b) => b.package !== null);
+    res.status(200).json(filteredBookings);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("Error fetching admin bookings:", error.message);
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 
-// Confirm booking
-const confirmBooking = async (req, res) => {
-  try {
-    const booking = await Booking.findById(req.params.id);
-    if (booking) {
-      booking.status = "confirmed";
-      const confirmedBooking = await booking.save();
-      res.json(confirmedBooking);
-    } else {
-      res.status(404).json({ message: "Booking not found" });
-    }
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
-// Reject booking
+// Reject Booking (Admin)
 const rejectBooking = async (req, res) => {
   try {
-    const booking = await Booking.findById(req.params.id);
-    if (booking) {
-      booking.status = "rejected";
-      const rejectedBooking = await booking.save();
-      res.json(rejectedBooking);
-    } else {
-      res.status(404).json({ message: "Booking not found" });
+    if (!req.user || req.user.role !== "admin") {
+      return res.status(403).json({ error: "Access denied. Admins only" });
     }
+
+    const { bookingId } = req.params;
+    const booking = await Booking.findById(bookingId).populate("package", "packageName");
+
+    if (!booking) {
+      return res.status(404).json({ error: "Booking not found" });
+    }
+
+    // Update booking status
+    booking.status = "Rejected";
+
+    await booking.save();
+
+    // Send email notification to the user
+    await sendRejectionEmail(booking);
+
+    res.status(200).json({ success: "Booking rejected and message sent.", booking });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("Error rejecting booking:", error.message);
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 
-// Cancel booking
-const cancelBooking = async (req, res) => {
+const confirmBooking = async (req, res) => {
   try {
-    const booking = await Booking.findById(req.params.id);
-    if (booking) {
-      booking.status = "cancelled";
-      const cancelledBooking = await booking.save();
-      res.json(cancelledBooking);
-    } else {
-      res.status(404).json({ message: "Booking not found" });
+    if (!req.user || req.user.role !== "admin") {
+      return res.status(403).json({ error: "Access denied. Admins only" });
     }
+
+    const { bookingId } = req.params;
+    const booking = await Booking.findById(bookingId);
+
+    if (!booking) {
+      return res.status(404).json({ error: "Booking not found" });
+    }
+
+    booking.status = "Confirmed";
+
+    await booking.save();
+
+    // Send email notification to the user
+    await sendConfirmationEmail(booking);
+
+    res.status(200).json({ success: "Booking confirmed successfully!" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("Error confirming booking:", error.message);
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 const getAdminNotifications = async (req, res) => {
@@ -109,26 +160,37 @@ const getAdminNotifications = async (req, res) => {
   }
 };
 
-// Get notifications
-const getNotifications = async (req, res) => {
+// ✅ Fixed cancelBooking function
+const cancelBooking = async (req, res) => {
   try {
-    const bookings = await Booking.find({ 
-      status: { $in: ["confirmed", "rejected", "cancelled"] } 
-    }).populate("package user");
-    
-    res.json(bookings);
+    const { bookingId } = req.params;
+    const userId = req.user.id; // Assuming authentication middleware sets req.user
+
+    // Find the booking
+    const booking = await Booking.findById(bookingId);
+    if (!booking) {
+      return res.status(404).json({ error: "Booking not found" });
+    }
+
+    // Ensure the logged-in user is the owner of the booking
+    if (booking.user.toString() !== userId) {
+      return res.status(403).json({ error: "Unauthorized to cancel this booking" });
+    }
+
+    // Only allow canceling if the booking is still pending
+    if (booking.status !== "Pending") {
+      return res.status(400).json({ error: "Only pending bookings can be canceled" });
+    }
+
+    // Update status to "Cancelled"
+    booking.status = "Cancelled";
+    await booking.save();
+
+    res.status(200).json({ message: "Booking has been canceled successfully" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("Error canceling booking:", error.message);
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 
-module.exports = {
-  createBooking,
-  getBookings,
-  getBookingById,
-  confirmBooking,
-  rejectBooking,
-  cancelBooking,
-  getNotifications,
-  getAdminNotifications,
-};
+module.exports = { createBooking ,getUserBookings, getAdminBookings, confirmBooking, getAdminNotifications,cancelBooking,rejectBooking };

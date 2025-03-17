@@ -1,122 +1,89 @@
 const mongoose = require("mongoose");
 
+// Define the Booking Schema
 const BookingSchema = new mongoose.Schema(
   {
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true,
-      index: true,
+      required: [true, "User reference is required"],
     },
     package: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Package",
-      required: true,
-      index: true,
+      required: [true, "Package reference is required"],
     },
     numberOfPeople: {
       type: Number,
       required: [true, "Number of people is required"],
-      min: [1, "At least one person is required"],
+      min: [1, "Number of people must be at least 1"],
     },
     bookingDate: {
       type: Date,
       required: [true, "Booking date is required"],
-      validate: {
-        validator: function (value) {
-          const today = new Date();
-          today.setHours(0, 0, 0, 0); // Reset time to 00:00:00 to compare only dates
-          return value >= today; // Ensures booking date is today or in the future
-        },
-        message: "Booking date cannot be in the past",
-      },
     },
     userName: {
       type: String,
       required: [true, "User name is required"],
-      trim: true,
     },
     userEmail: {
       type: String,
       required: [true, "User email is required"],
-      trim: true,
-      lowercase: true,
-      match: [/\S+@\S+\.\S+/, "Please enter a valid email address"],
     },
     userPhone: {
       type: String,
       required: [true, "User phone number is required"],
-      trim: true,
-      match: [/^\+?[1-9]\d{1,14}$/, "Please enter a valid phone number"],
     },
     userAddress: {
       type: String,
       required: [true, "User address is required"],
-      trim: true,
+    },
+    status: {
+      type: String,
+      enum: ["Pending", "Confirmed", "Cancelled", "Rejected"], // ✅ Removed duplicate "pending"
+      default: "Pending",
+    },
+    transactionId: {
+      type: String,
+      sparse: true,
+      default: null,
     },
     amountPaid: {
       type: Number,
       default: 0,
       min: [0, "Amount paid cannot be negative"],
     },
-    status: {
-      type: String,
-      enum: ["pending", "confirmed", "cancelled", "rejected"],
-      default: "pending",
-    },
-    paymentMethod: {
-      type: String,
-      enum: ["khalti", "cash"],
-      default: "khalti",
-    },
-    paymentStatus: {
-      type: String,
-      enum: ["pending", "paid", "refunded"],
-      default: "pending",
-    },
-    transactionId: {
-      type: String,
-      unique: true,
-      sparse: true, // Allows null values while maintaining uniqueness
-      index: true,
-    },
-    paymentDetails: {
-      type: Object,
-      default: null,
-    },
   },
   { timestamps: true }
 );
 
-/** Virtual Property: Get full user info */
-BookingSchema.virtual("fullUserInfo").get(function () {
-  return `${this.userName} (${this.userEmail}, ${this.userPhone})`;
-});
-
-/** Virtual Property: Calculate Total Amount */
-BookingSchema.virtual("totalAmount").get(function () {
-  return this.package.price * this.numberOfPeople; // Assuming `package.price` is populated
-});
-
-/** Static Method: Update Booking Status */
-BookingSchema.methods.updateStatus = async function (newStatus) {
-  this.status = newStatus;
-  await this.save();
-  return this;
-};
-
-
-
-/** Static Method: Reject Booking */
+// ✅ Function to Reject a Booking (Admin Only)
 BookingSchema.statics.rejectBooking = async function (bookingId) {
   const booking = await this.findById(bookingId);
-  if (!booking) {
-    throw new Error("Booking not found");
-  }
-  booking.status = "rejected";
+  if (!booking) throw new Error("Booking not found");
+
+  // ✅ Correct the case of "Rejected" to match the enum
+  booking.status = "Rejected"; 
   await booking.save();
-  return booking;
+
+  return { message: "Booking has been rejected successfully" };
 };
 
+// ✅ Function to Confirm a Booking
+BookingSchema.statics.confirmBooking = async function (bookingId) {
+  const booking = await this.findById(bookingId);
+  if (!booking) throw new Error("Booking not found");
+
+  // ✅ Correct the case of "Confirmed" to match the enum
+  booking.status = "Confirmed"; 
+  await booking.save();
+
+  return { message: "Booking has been confirmed successfully" };
+  
+};
+
+// Create the Booking model
 const Booking = mongoose.model("Booking", BookingSchema);
+
+// Export the model
 module.exports = Booking;

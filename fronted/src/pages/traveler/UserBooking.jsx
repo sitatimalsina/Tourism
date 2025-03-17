@@ -4,7 +4,6 @@ import {
   FaUserFriends,
   FaClock,
   FaTimesCircle,
-  FaCheckCircle,
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
@@ -63,6 +62,8 @@ const UserBookings = () => {
           booking._id === bookingId ? { ...booking, status: "cancelled" } : booking
         )
       );
+
+
     } catch (error) {
       toast.dismiss();
       toast.error(error.message);
@@ -150,7 +151,7 @@ const UserBookings = () => {
                     </p>
                   </div>
                   
-                  {booking.status !== "cancelled" && (
+                  {booking.status !== "cancelled" && booking.status === "Pending" && (
                     <button
                       className="mt-3 w-full px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-700 transition shadow-md hover:shadow-lg flex items-center justify-center gap-2 text-sm"
                       onClick={() => handleCancelBooking(booking._id)}

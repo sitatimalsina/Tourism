@@ -2,7 +2,7 @@ const express = require("express");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const path = require("path");
-const { connectDb } = require("./db/connectDB");
+const  {connectDb}  = require("./db/connectDB");
 
 const app = express();
 require("dotenv").config();
@@ -18,6 +18,7 @@ app.use(cookieParser());
 // Static files
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
+
 // Routes
 app.use('/api/', require("./routes/auth.route"));
 app.use('/api/destinations', require("./routes/destination.route"));
@@ -28,6 +29,7 @@ app.use("/api/users", require("./routes/user.route"));
 app.use("/api/contact", require("./routes/contact.route"));
 app.use("/api/booking-history", require("./routes/bookingHistory.route"));
 app.use("/api/photos",require("./routes/photo.route"));
+
 
 
 

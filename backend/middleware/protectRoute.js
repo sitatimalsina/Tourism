@@ -13,8 +13,6 @@ const protectRoute = async (req, res, next) => {
     next();
   } catch (err) {
     res.status(400).json({ error: "Invalid or expired token" });
-    
-    console.log({message:"token is not there"})
   }
 };
 

@@ -1,7 +1,7 @@
 const Booking = require("../model/Booking");
 const Package = require("../model/Package");
 
-// Fetch booking history with optional search
+
 const getBookingHistory = async (req, res) => {
   try {
     const { search } = req.query;
@@ -10,16 +10,15 @@ const getBookingHistory = async (req, res) => {
     const query = {};
     if (search) {
       query.$or = [
-        { userName: { $regex: search, $options: "i" } }, // Case-insensitive search by user name
-        { userEmail: { $regex: search, $options: "i" } }, // Case-insensitive search by email
-        { "package.title": { $regex: search, $options: "i" } }, // Case-insensitive search by package title
+        { userName: { $regex: search, $options: "i" } },
+        { userEmail: { $regex: search, $options: "i" } }, 
+        { "package.name": { $regex: search, $options: "i" } }, 
       ];
     }
 
-    // Fetch bookings and populate the package field
     const bookings = await Booking.find(query)
-      .populate("package", "title") // Populate only the `title` field of the package
-      .lean(); // Optional: Convert documents to plain JavaScript objects
+      .populate("package", "packageName") 
+      .lean(); 
 
     res.status(200).json(bookings);
   } catch (error) {

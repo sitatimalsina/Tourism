@@ -54,7 +54,6 @@ const AdminPanel = () => {
     () => [
       { title: "Users", value: stats.totalUsers, bgColor: "bg-red-200", textColor: "text-white", icon: <FaUser /> },
       { title: "Bookings", value: stats.totalBookings, bgColor: "bg-blue-200", textColor: "text-white", icon: <FaCalendarCheck /> },
-      { title: "Revenue", value: `$${stats.totalRevenue.toFixed(2)}`, bgColor: "bg-green-500", textColor: "text-white", icon: <FaDollarSign /> },
       { title: "Destinations", value: stats.totalDestinations, bgColor: "bg-lime-200", textColor: "text-white", icon: <FaGlobe /> },
       { title: "Packages", value: stats.totalPackages, bgColor: "bg-purple-200", textColor: "text-white", icon: <FaBox /> },
       { title: "Cancelled Booking", value: stats.canceledBookings, bgColor: "bg-pink-200", textColor: "text-white", icon: <FaTimesCircle /> },

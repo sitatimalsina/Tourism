@@ -76,34 +76,37 @@ const BookingHistory = () => {
             <table className="w-full border-collapse">
               <thead>
                 <tr className="bg-gray-200">
+                  <th className="p-3 text-center">#</th> {/* Number column */}
                   <th className="p-3 text-center">UserName</th>
                   <th className="p-3 text-center">Email</th>
+                  <th className="p-3 text-center">PhoneNo.</th>
                   <th className="p-3 text-center">Package</th>
                   <th className="p-3 text-center">Booking Date</th>
                   <th className="p-3 text-center">Number of People</th>
-                  <th className="p-3 text-center">Amount Paid</th>
-                  <th className="p-3 text-center">Payment Status</th>
                   <th className="p-3 text-center">Booking Status</th>
                 </tr>
               </thead>
               <tbody>
                 {bookings.length > 0 ? (
-                  bookings.map((booking) => (
+                  bookings.map((booking, index) => (
                     <tr key={booking._id} className="border-b hover:bg-gray-100">
+                      <td className="p-3 text-center">{index + 1}</td> {/* Display row number */}
                       <td className="p-3 text-center">{booking.userName || "Unknown"}</td>
                       <td className="p-3 text-center">{booking.userEmail || "Unknown"}</td>
-                      <td className="p-3 text-center">{booking.package?.title || "Unknown"}</td>
+                      <td className="p-3 text-center">{booking.userPhone || "Unknown"}</td>
+                      <td className="p-3 text-center">{booking.package?.packageName || "Unknown"}</td>
                       <td className="p-3 text-center">{formatDate(booking.bookingDate)}</td>
                       <td className="p-3 text-center">{booking.numberOfPeople}</td>
-                      <td className="p-3 text-center">${booking.amountPaid.toFixed(2)}</td>
-                      <td className="p-3 capitalize text-center">{booking.paymentStatus}</td>
                       <td className="p-3 capitalize text-center">
                         <span
                           className={`px-2 py-1 rounded-full text-white ${
-                            booking.status === "pending"
-                              ? "bg-yellow-500"
-                              : booking.status === "confirmed"
+                            booking.status === "Pending"
+                              ? "bg-yellow-400"
+                              : booking.status === "Confirmed"
                               ? "bg-green-500"
+                      :booking.status ===  "Cancelled"
+
+                              ? "bg-blue-500"
                               : "bg-red-500"
                           }`}
                         >
@@ -114,7 +117,7 @@ const BookingHistory = () => {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="8" className="text-center p-3 text-gray-500">
+                    <td colSpan="7" className="text-center p-3 text-gray-500">
                       No booking history found
                     </td>
                   </tr>

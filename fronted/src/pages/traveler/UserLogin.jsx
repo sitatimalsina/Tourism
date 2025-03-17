@@ -63,7 +63,18 @@ const UserLogin = () => {
           >
             Login
           </button>
-        </form>
+          </form>
+
+          {/* Forgot Password Link */}
+          <p className="text-sm text-center text-gray-600 mt-4">
+            <span
+              className="text-teal-500 font-semibold cursor-pointer"
+              onClick={() => navigate("/forgot-password")}
+            >
+              Forgot Password?
+            </span>
+          </p>
+
 
         {/* Redirect to Signup */}
         <p className="text-sm text-center text-gray-600 mt-4">

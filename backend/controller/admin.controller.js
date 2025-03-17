@@ -47,11 +47,12 @@ const getAdminDashboardStats = async (req, res) => {
             { $group: { _id: null, total: { $sum: "$amountPaid" } } }
           ],
           canceledBookings: [
-            { $match: { status: "cancelled" } },
-            { $group: { _id: null, total: { $sum: "$numberOfPeople" } } }
+            { $match: { status: "Cancelled" } },
+            { $group: { _id: null, total: { $sum: 1 } } } // Count distinct canceled bookings
+
           ],
           totalCanceledPackages: [
-            { $match: { status: "cancelled" } },
+            { $match: { status: "Cancelled" } }, // Updated to match the correct status
             { $count: "count" }
           ]
         }

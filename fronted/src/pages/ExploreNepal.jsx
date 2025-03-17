@@ -2,7 +2,7 @@ import React from "react";
 import Header from "../components/Header";
 import Banner from "../components/Banner";
 import DestinationSlider from "../components/DestinationSlider";
-import HighestRatedReviews from "../components/HighestRatedReviews";
+// import HighestRatedReviews from "../components/HighestRatedReviews";
 import WhatWeOffer from "../components/WhatWeOffer";
 import Footer from "../components/Footer";
 
@@ -68,7 +68,7 @@ const ExploreNepal = () => {
       </div>
 
       {/* Highest Rated Reviews */}
-      <HighestRatedReviews />
+      {/* <HighestRatedReviews /> */}
 
       {/* Footer */}
       <Footer />
