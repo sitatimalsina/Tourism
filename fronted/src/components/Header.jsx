@@ -118,7 +118,7 @@ const Header = () => {
                 </button>
                 {/* Logout Button */}
                 <button
-                  className="block w-full text-left p-2 hover:bg-gray-200 rounded-md mt-2"
+                  className="block w-full text-left p-2 bg-red-600 rounded-md mt-2"
                   onClick={handleLogout}
                   aria-label="Logout"
                 >

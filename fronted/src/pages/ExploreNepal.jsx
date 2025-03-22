@@ -36,7 +36,7 @@ const ExploreNepal = () => {
           {/* Image Section */}
           <div className="md:w-1/2 flex justify-center">
             <img 
-              src="https://res.cloudinary.com/dyowslbun/image/upload/v1739990881/photos/mqevosm84orexmbckynr.jpg"
+              src="https://res.cloudinary.com/dyowslbun/image/upload/v1740229499/photos/gri3y7esmwa7nlczhytb.jpg"
 
 
               alt="Explore Nepal"

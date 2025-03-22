@@ -77,7 +77,6 @@ const EditDestination = () => {
 
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
-
       toast.success("Destination updated successfully!");
       navigate("/admin/destinations");
     } catch (error) {

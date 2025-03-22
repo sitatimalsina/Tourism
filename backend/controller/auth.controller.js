@@ -9,16 +9,25 @@ const signup = async (req, res) => {
     const { name, email, password, role } = req.body;
 
     // Check if user already exists
+    if (password.length < 8 || !/[A-Z]/.test(password) || !/[0-9]/.test(password) || !/[!@#$%^&*]/.test(password)) {
+      return res.status(400).json({ error: 'Password must be at least 8 characters long, contain a special character, a number, and a capital letter' });
+    }
     const user = await User.findOne({ email });
     if (user) {
       return res.status(400).json({ error: 'Email already exists' });
     }
 
     // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
     // let hashedPassword = await bcrypt.hash(password, 10);
 
     // Create a new user
     const newUser = new User({
+      password: hashedPassword,
+
+      password: hashedPassword,
+
       name,
       email,
       password,
@@ -71,7 +80,18 @@ const login = async (req, res) => {
     //   res.send({message:"password dont match"})
     // }
 
+    // Update lastLogin field
+    user.lastLogin = new Date(); // Set the lastLogin to the current date
+    await user.save(); // Save the updated user information
+
+    console.log("User login data:", {
+      lastLogin: user.lastLogin,
+      lastPasswordChange: user.lastPasswordChange,
+    }); // Log the lastLogin and lastPasswordChange for debugging
+
     // Generate a JWT token and set it as a cookie
+
+
     const token = generateTokenAndSetCookie(user._id, res);
 
     return res.status(200).json({

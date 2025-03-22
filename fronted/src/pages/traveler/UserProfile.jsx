@@ -1,14 +1,17 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useAuthContext } from "../../context/AuthContext";
 import ChangePassword from "../../components/ChangePassword";
-
-import Footer from "../../components/Footer"; // Importing Footer component
-
+import Footer from "../../components/Footer"; 
 import Header from "../../components/Header";
 
 const UserProfile = () => {
   const { authUser } = useAuthContext();
-  const [showChangePassword, setShowChangePassword] = useState(false); // State to toggle dropdown
+  const [showChangePassword, setShowChangePassword] = useState(false);
+
+  // Debugging: Check if authUser has lastLogin and lastPasswordChange
+  useEffect(() => {
+    console.log("User Data:", authUser);
+  }, [authUser]);
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-100">
@@ -16,8 +19,7 @@ const UserProfile = () => {
       <Header />
 
       {/* Main Content */}
-<div className="flex-1 flex items-center justify-center mt-4"> {/* Added margin-top for spacing */}
-
+      <div className="flex-1 flex items-center justify-center mt-4">
         {/* Outer Box */}
         <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
           {/* User Profile Header */}
@@ -29,25 +31,31 @@ const UserProfile = () => {
           <div className="space-y-2">
             <p className="flex justify-between">
               <span className="font-semibold">Name: </span>
-              {authUser.name}
+              <span>{authUser?.name || "Not Available"}</span>
             </p>
             <p className="flex justify-between">
               <span className="font-semibold">Email:</span>
-              <span>{authUser.email}</span>
+              <span>{authUser?.email || "Not Available"}</span>
             </p>
             <p className="flex justify-between">
               <span className="font-semibold">Last Login:</span>
-              <span>Not Available</span> {/* Replace with actual data if available */}
+              <span>
+                {authUser?.lastLogin
+                  ? new Date(authUser.lastLogin).toLocaleString()
+                  : "Not Available"}
+              </span>
             </p>
             <p className="flex justify-between">
               <span className="font-semibold">Last Password Change:</span>
-              <span>Not Available</span> {/* Replace with actual data if available */}
+              <span>
+                {authUser?.lastPasswordChange
+                  ? new Date(authUser.lastPasswordChange).toLocaleString()
+                  : "Not Available"}
+              </span>
             </p>
           </div>
 
           {/* Change Password Section */}
-        
-
           <div className="mt-8">
             <button
               className="w-full bg-teal-600 text-white py-2 px-4 rounded-lg hover:bg-teal-700 transition"
@@ -65,7 +73,9 @@ const UserProfile = () => {
           </div>
         </div>
       </div>
-      <Footer /> 
+
+      {/* Footer */}
+      <Footer />
     </div>
   );
 };

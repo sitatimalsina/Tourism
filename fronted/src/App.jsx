@@ -32,6 +32,7 @@ import ManageMessages from './pages/serviceprovider/ManageMessages';
 import TermsOfUse from './pages/TermsOfUse';
 import ManagePhoto from './pages/serviceprovider/ManagePhoto';
 import ForgotPassword from './pages/traveler/ForgotPassword';
+import PrivacyPolicy from './pages/Policy';
 
 
 function App() {
@@ -69,6 +70,8 @@ function App() {
         <Route path="/terms-of-use" element={<TermsOfUse />} />
         <Route path="/admin/manage-photos" element={<ManagePhoto />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+        
       </Routes>
       <Toaster />
     </div>

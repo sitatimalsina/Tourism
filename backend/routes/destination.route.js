@@ -1,5 +1,7 @@
 const express = require("express");
 const router = express.Router();
+const { protectRoute } = require("../middleware/protectRoute");
+const upload = require("../utils/multer");
 const {
   addDestination,
   getAllDestinations,
@@ -11,16 +13,13 @@ const {
   getHighestRatedReviews, // Import the function
 } = require("../controller/destination.controller");
 
-// Existing routes
-router.post("/", addDestination);
+router.post("/add", protectRoute, upload.array("pictures", 5), addDestination);
 router.get("/", getAllDestinations);
-router.get("/admin", getAdminDestinations);
-router.get("/:id", getDestinationDetail);
-router.post("/:destinationId/reviews", addReview);
-router.put("/:id", editDestination);
-router.delete("/:id", deleteDestination);
-
-// Get highest rated reviews
+router.get("/admin", protectRoute, getAdminDestinations);
+router.get("/:id", protectRoute,getDestinationDetail);
+router.post("/:destinationId/reviews", protectRoute, addReview);
+router.put("/edit/:id", protectRoute, upload.array("photos", 5), editDestination);
+router.delete("/:id", protectRoute, deleteDestination);
 router.get("/highest-rated-reviews", getHighestRatedReviews);
 
 module.exports = router;

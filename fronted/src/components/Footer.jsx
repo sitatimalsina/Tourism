@@ -54,10 +54,10 @@ const Footer = () => {
                 Terms of Use
               </Link>
             </li>
-            {/* <li>
+            <li>
               <Link to="/privacy-policy" className="text-gray-400 hover:text-white">
-                Privacy Policy
-              </Link></li> */}
+                Policy
+              </Link></li>
           </ul>
         </div>
 

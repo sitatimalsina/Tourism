@@ -80,7 +80,7 @@ const AllDestinations = () => {
               onClick={() => setSelectedCategory(category)}
               className={`px-4 py-2 rounded-lg border border-black shadow-md transition-all hover:shadow-lg ${
                 selectedCategory === category
-                  ? "bg-gray-300 text-black"
+                  ? "bg-teal-600 text-black"
                   : "bg-white text-black hover:bg-gray-300"
               }`}
             >
