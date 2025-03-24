@@ -1,29 +1,41 @@
 const nodemailer = require("nodemailer");
-
-// Configure the transporter (Use your Gmail or SMTP settings)
+require("dotenv").config();
+const validator = require("validator");
+// Create a transporter using Gmail's SMTP service
 const transporter = nodemailer.createTransport({
-  service: "gmail",
+  service: "Gmail",
   auth: {
-    user: process.env.EMAIL_USER, // Your Gmail address
-    pass: process.env.EMAIL_PASS, // App password (not your Gmail password)
-  },
+    user: process.env.EMAIL_USER, // Ensure this is set correctly
+    pass: process.env.EMAIL_PASS, // Ensure this is set correctly
+  }
 });
 
 // Function to send email
-const sendEmail = async (to, subject, text) => {
-  try {
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
-      to,
-      subject,
-      text,
-    };
 
-    await transporter.sendMail(mailOptions);
-    console.log("Email sent successfully!");
-  } catch (error) {
-    console.error("Error sending email:", error);
+const sendEmail = async (mailOptions) => {
+  const { from, to, subject, text } = mailOptions;
+
+  // Validate recipient email
+  if (!to || !validator.isEmail(to.trim())) {
+    throw new Error("Invalid recipient email");
   }
+
+  // Create transporter (Gmail example)
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
+    },
+  });
+
+  // Send email
+  await transporter.sendMail({
+    from: `Tourease <${from}>`,
+    to: to.trim(), // Trim email
+    subject,
+    text,
+  });
 };
 
 module.exports = sendEmail;

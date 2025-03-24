@@ -10,7 +10,7 @@ const UserSchema = new Schema(
       type: String,
       required: [true, "Name is required"],
       trim: true,
-      minlength: [2, "Name must be at least 2 characters"],
+      minlength: [2, "Name must be at least 3 characters"],
     },
     email: {
       type: String,
@@ -74,6 +74,12 @@ const UserSchema = new Schema(
       type: Date,
       default: null,
     },
+    verifyOtp: { type: String, default: "" },
+    verifyOtpExpireAt: { type: Number, default: 0 },
+    isAccountVerified: { type: Boolean, default: false },
+    resetOtp: { type: String, default: "" },
+    resetOtpExpireAt: { type: Number, default: 0 },
+
     passwordHistory: {
       type: [String], // Store hashes of previous passwords to prevent reuse
       default: [],

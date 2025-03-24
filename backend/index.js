@@ -1,11 +1,19 @@
+// Load environment variables
+require("dotenv").config();
+
+// Core Modules
+const path = require("path");
+
+// Third-Party Modules
 const express = require("express");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
-const path = require("path");
-const  {connectDb}  = require("./db/connectDB");
+const nodemailer = require("nodemailer");
+
+// Local Modules
+const { connectDb } = require("./db/connectDB");
 
 const app = express();
-require("dotenv").config();
 
 // Middleware
 app.use(express.json());
@@ -15,9 +23,8 @@ app.use(cors({
 }));
 app.use(cookieParser());
 
-// Static files
+// Serve Static Files (Move above middleware for better performance)
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
-
 
 // Routes
 app.use('/api/', require("./routes/auth.route"));
@@ -28,22 +35,18 @@ app.use("/api/admin", require("./routes/admin.route"));
 app.use("/api/users", require("./routes/user.route"));
 app.use("/api/contact", require("./routes/contact.route"));
 app.use("/api/booking-history", require("./routes/bookingHistory.route"));
-app.use("/api/photos",require("./routes/photo.route"));
+app.use("/api/photos", require("./routes/photo.route"));
 
-
-
-
+// Define Port
 const port = process.env.PORT || 5000;
 
-// Connect to database and start server
+// Connect to Database & Start Server
 const startServer = async () => {
     try {
         await connectDb();
-        app.listen(port, () => {
-            console.log(`Server is running on port ${port}`);
-        });
+        app.listen(port, () => console.log(`✅ Server running on port ${port}`));
     } catch (error) {
-        console.error("Failed to start server:", error);
+        console.error("❌ Failed to start server:", error);
         process.exit(1);
     }
 };
