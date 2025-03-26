@@ -58,7 +58,7 @@ const handleSendResetOtp = async (e) => {
 
     try {
       setIsSending(true); // Start sending request
-      const response = await axios.post(`${API_BASE_URL}/api/auth/reset-password`, { email, otp, newPassword });
+      const response = await axios.patch(`${API_BASE_URL}/api/auth/reset-password`, { email, otp, newPassword });
 
       setIsSending(false); // Request completed
       setSuccessMessage(response.data.message); // Show success message

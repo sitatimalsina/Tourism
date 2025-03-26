@@ -6,65 +6,50 @@ const sendEmail = require('../utils/email'); // Import the email utility
 const validator = require('validator'); // Add the validator library
 
 // Signup Function
+// Signup Function
 const signup = async (req, res) => {
   try {
     const { name, email, password, role } = req.body;
-    const trimmedEmail = email?.trim();
 
-    // Validate email format
-    if (!trimmedEmail || !validator.isEmail(trimmedEmail)) {
-      return res.status(400).json({ error: 'Invalid email format' });
+    // Check if user already exists
+    if (password.length < 8 || !/[A-Z]/.test(password) || !/[0-9]/.test(password) || !/[!@#$%^&*]/.test(password)) {
+      return res.status(400).json({ error: 'Password must be at least 8 characters long, contain a special character, a number, and a capital letter' });
     }
-
-    // Password validation
-    const passwordErrors = [];
-    if (password.length < 8) passwordErrors.push('at least 8 characters');
-    if (!/[A-Z]/.test(password)) passwordErrors.push('one uppercase letter');
-    if (!/[0-9]/.test(password)) passwordErrors.push('one number');
-    if (!/[!@#$%^&*]/.test(password)) passwordErrors.push('one special character');
-    
-    if (passwordErrors.length > 0) {
-      return res.status(400).json({ 
-        error: `Password must contain: ${passwordErrors.join(', ')}` 
-      });
-    }
-
-    // Check for existing user
-    const existingUser = await User.findOne({ email: trimmedEmail });
-    if (existingUser) {
+    const user = await User.findOne({ email });
+    if (user) {
       return res.status(400).json({ error: 'Email already exists' });
     }
 
-    // Create new user
+    // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
+
+    // let hashedPassword = await bcrypt.hash(password, 10);
+
+    // Create a new user
     const newUser = new User({
-      name,
-      email: trimmedEmail,
       password: hashedPassword,
+
+      password: hashedPassword,
+
+      name,
+      email,
+      password,
       role: role || "user",
     });
 
+    // Save the user and generate a JWT token
     await newUser.save();
     generateTokenAndSetCookie(newUser._id, res);
 
-    // Send welcome email
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
-      to: trimmedEmail,
-      subject: "Welcome to Our Service!",
-      text: `Hello ${name},\n\nThank you for signing up!`,
-    };
-    await sendEmail(mailOptions);
-
-    res.status(201).json({
+    res.status(200).json({
       _id: newUser._id,
       name: newUser.name,
       email: newUser.email,
       role: newUser.role,
+      interests: newUser.preferences.interests,
     });
-
   } catch (err) {
-    console.error("Signup error:", err.message);
+    console.error("Error in signup controller:", err.message);
     res.status(500).json({ error: "Server error" });
   }
 };
@@ -73,43 +58,58 @@ const signup = async (req, res) => {
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    const trimmedEmail = email?.trim();
 
-    if (!trimmedEmail || !password) {
-      return res.status(400).json({ error: 'Email and password required' });
+    // Check if both email and password are provided
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Email and password are required' });
     }
 
-    const user = await User.findOne({ email: trimmedEmail });
+    // Find the user by email
+    const user = await User.findOne({ email });
     if (!user) {
-      return res.status(400).json({ error: 'Invalid credentials' });
+      return res.status(400).json({ error: 'Invalid email' });
     }
 
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(400).json({ error: 'Invalid credentials' });
+    // Compare the provided password with the hashed password
+    const matched = await bcrypt.compare(password, user.password);
+    if (!matched) {
+      return res.status(400).json({ error: 'Invalid  password' });
     }
+    // if(password==user.password){
+    //   res.send({message:"password match"})
+    // }
 
-    // Update last login
-    user.lastLogin = new Date();
-    await user.save();
+    // else{
+    //   res.send({message:"password dont match"})
+    // }
 
-    // Generate token
+    // Update lastLogin field
+    user.lastLogin = new Date(); // Set the lastLogin to the current date
+    await user.save(); // Save the updated user information
+
+    console.log("User login data:", {
+      lastLogin: user.lastLogin,
+      lastPasswordChange: user.lastPasswordChange,
+    }); // Log the lastLogin and lastPasswordChange for debugging
+
+    // Generate a JWT token and set it as a cookie
+
+
     const token = generateTokenAndSetCookie(user._id, res);
 
-    res.status(200).json({
-      _id: user._id,
+    return res.status(200).json({
       name: user.name,
       email: user.email,
+      _id: user._id,
       role: user.role,
-      token,
+      interests: user.preferences.interests,
+      token, // Include the token in the response
     });
-
   } catch (err) {
-    console.error("Login error:", err.message);
-    res.status(500).json({ error: "Server error" });
+    console.log("Error in login controller", err.message);
+    res.status(500).json({ error: "Internal server error" });
   }
 };
-
 // Logout Function
 const logout = async (req, res) => {
   try {
@@ -283,32 +283,44 @@ const resetPassword = async (req, res) => {
     const trimmedEmail = email?.trim();
 
     if (!trimmedEmail || !otp || !newPassword) {
-      return res.status(400).json({ error: 'All fields required' });
+      return res.status(400).json({ error: "All fields required" });
     }
 
     const user = await User.findOne({ email: trimmedEmail });
     if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+      return res.status(404).json({ error: "User not found" });
     }
 
     if (user.resetOtp !== otp || user.resetOtpExpireAt < Date.now()) {
-      return res.status(400).json({ error: 'Invalid/expired OTP' });
+      return res.status(400).json({ error: "Invalid/expired OTP" });
     }
 
-    // Update password
+    // Hash the new password before updating
     const hashedPassword = await bcrypt.hash(newPassword, 10);
-    user.password = hashedPassword;
-    user.resetOtp = null;
-    user.resetOtpExpireAt = null;
-    await user.save();
 
-    res.json({ success: true, message: 'Password reset successful' });
+    // Use findOneAndUpdate to update the password and reset OTP fields
+    const updatedUser = await User.findOneAndUpdate(
+      { email: trimmedEmail }, // Query to find the user
+      {
+        password: hashedPassword, // Update password
+        resetOtp: null, // Clear OTP
+        resetOtpExpireAt: null, // Clear OTP expiry
+      },
+      { new: true } // Return updated document
+    );
+
+    if (!updatedUser) {
+      return res.status(500).json({ error: "Password reset failed" });
+    }
+
+    res.status(200).json({ success: true, message: "Password reset successful" });
 
   } catch (error) {
     console.error("Password reset error:", error.message);
-    res.status(500).json({ error: 'Password reset failed' });
+    res.status(500).json({ error: "Password reset failed" });
   }
 };
+
 
 // Export all functions
 module.exports = {

@@ -24,9 +24,9 @@ router.post('/auth/save-preferences', protectRoute, savePreference);
 router.post('/auth/send-verify-otp', sendVerifyOtp);
 router.post('/auth/verify-email', verifyEmail);
 router.post('/auth/send-reset-otp', sendResetOTP);
-router.post('/auth/reset-password', resetPassword);
+router.patch('/auth/reset-password', resetPassword);
 
-router.use(protectRoute);
+// router.use(protectRoute);
 router.patch('/auth/change-password', changePassword);
 
 module.exports = router;
