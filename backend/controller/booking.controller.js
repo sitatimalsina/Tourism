@@ -88,61 +88,75 @@ const getAdminBookings = async (req, res) => {
   }
 };
 
-// Reject Booking (Admin)
 const rejectBooking = async (req, res) => {
   try {
+    // Ensure only admins can reject bookings
     if (!req.user || req.user.role !== "admin") {
       return res.status(403).json({ error: "Access denied. Admins only" });
     }
 
     const { bookingId } = req.params;
+
+    // Find the booking and populate the package details
     const booking = await Booking.findById(bookingId).populate("package", "packageName");
 
     if (!booking) {
       return res.status(404).json({ error: "Booking not found" });
     }
 
-    // Update booking status
+    // Update booking status to "Rejected"
     booking.status = "Rejected";
-
     await booking.save();
 
-    // Send email notification to the user
-    await sendRejectionEmail(booking);
+    // Send rejection email to the user
+    try {
+      await sendRejectionEmail(booking);
+    } catch (emailError) {
+      console.error("Error sending rejection email:", emailError.message);
+      // Log the error but do not fail the entire process
+    }
 
-    res.status(200).json({ success: "Booking rejected and message sent.", booking });
+    res.status(200).json({ success: "Booking rejected and notification sent.", booking });
   } catch (error) {
     console.error("Error rejecting booking:", error.message);
     res.status(500).json({ error: "Internal server error" });
   }
 };
-
 const confirmBooking = async (req, res) => {
   try {
+    // Ensure only admins can confirm bookings
     if (!req.user || req.user.role !== "admin") {
       return res.status(403).json({ error: "Access denied. Admins only" });
     }
 
     const { bookingId } = req.params;
-    const booking = await Booking.findById(bookingId);
+
+    // Find the booking and populate the package details
+    const booking = await Booking.findById(bookingId).populate("package", "packageName");
 
     if (!booking) {
       return res.status(404).json({ error: "Booking not found" });
     }
 
+    // Update booking status to "Confirmed"
     booking.status = "Confirmed";
-
     await booking.save();
 
-    // Send email notification to the user
-    await sendConfirmationEmail(booking);
+    // Send confirmation email to the user
+    try {
+      await sendConfirmationEmail(booking);
+    } catch (emailError) {
+      console.error("Error sending confirmation email:", emailError.message);
+      // Log the error but do not fail the entire process
+    }
 
-    res.status(200).json({ success: "Booking confirmed successfully!" });
+    res.status(200).json({ success: "Booking confirmed successfully!", booking });
   } catch (error) {
     console.error("Error confirming booking:", error.message);
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
 const getAdminNotifications = async (req, res) => {
   try {
     if (!req.user || req.user.role !== "admin") {
