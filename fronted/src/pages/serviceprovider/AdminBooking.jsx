@@ -15,9 +15,8 @@ const AdminBookings = () => {
     fetchNotifications();
   }, []);
 
-const fetchBookings = async () => {
-  console.log("Fetching bookings..."); // Debugging line to check if the function is called
-
+  const fetchBookings = async () => {
+    console.log("Fetching bookings..."); // Debugging line to check if the function is called
     try {
       const res = await fetch("/api/bookings/admin", { credentials: "include" });
       const data = await res.json();
@@ -28,12 +27,9 @@ const fetchBookings = async () => {
     }
   };
 
-const fetchNotifications = async () => {
-  
-
+  const fetchNotifications = async () => {
     try {
       const res = await fetch("/api/bookings/admin/notifications", { credentials: "include" }); // Ensure this endpoint is correct
-
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to fetch notifications");
       setNotifications(data);
@@ -64,13 +60,10 @@ const fetchNotifications = async () => {
 
   // Reject Booking
   const [isRejecting, setIsRejecting] = useState(false);
-const handleRejectBooking = async (bookingId) => {
-    setIsRejecting(true);
-
+  const handleRejectBooking = async (bookingId) => {
     setIsRejecting(true);
     try {
       const res = await fetch(`/api/bookings/reject/${bookingId}`, {
-
         method: "PUT",
         credentials: "include",
       });
@@ -132,7 +125,13 @@ const handleRejectBooking = async (bookingId) => {
                   <p className="text-gray-600">Total Price: ${booking.amountPaid}</p>
                   <p
                     className={`mt-2 font-semibold ${
-                      booking.status === "confirmed" ? "text-green-600" : "text-orange-600"
+                      booking.status === "Confirmed"
+                        ? "text-green-600"
+                        : booking.status === "Rejected"
+                        ? "text-red-600"
+                        : booking.status === "Cancelled"
+                        ? "text-blue-600"
+                        : "text-yellow-500"
                     }`}
                   >
                     Booking Status: {booking.status}
@@ -178,7 +177,6 @@ const handleRejectBooking = async (bookingId) => {
                           "Confirm Booking"
                         )}
                       </button>
-
                       <button
                         onClick={() => handleRejectBooking(booking._id)}
                         disabled={isRejecting}

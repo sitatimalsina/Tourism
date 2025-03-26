@@ -140,14 +140,16 @@ const UserBookings = () => {
                       <FaClock className="text-blue-600" />{" "}
                       <strong>Booking Status:</strong>{" "}
                       <span
-                        className={
-                          booking.status === "confirmed"
-                            ? "text-green-600"
-                            : "text-orange-600"
-                        }
-                      >
-                        {booking.status}
-                      </span>
+  className={
+    booking.status === "Confirmed"
+      ? "text-green-600"
+      : booking.status === "Pending"
+      ? "text-yellow-600"
+      : "text-orange-600"
+  }
+>
+  {booking.status}
+</span>
                     </p>
                   </div>
                   
